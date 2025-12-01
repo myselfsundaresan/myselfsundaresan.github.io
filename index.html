@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>myselfsundaresan | Lab & Code Portfolio</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Outfit Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+
+    <style>
+        /* --- Design System Tokens (CSS Variables) --- */
+        :root {
+            /* Accent Colors (Default: Orange) */
+            --accent-primary: #FD6F00; /* Main Action Orange */
+            --accent-rgb: 253, 111, 0; 
+            --accent-secondary: #FFF1E6;
+            --accent-hover: #E46400;
+            
+            /* Base Colors (Forced Dark Mode) */
+            --bg-darker: #0B0B0B;
+            --bg-card: #1E1E1E;
+            --text-main: #FEFEFE;
+            --text-muted: #9CA3AF;
+            
+            /* Custom Colors for Poetry - Pastel/Subtle Orange - FEC599 */
+            --dl-poetry-accent: #FEC599; 
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-darker);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Animations & Transitions --- */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* Floating Status Ring Animation */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-marquee {
+            animation: marquee 30s linear infinite;
+        }
+        
+        /* Slower marquee for reading cards */
+        .animate-marquee-slow {
+            animation: marquee 60s linear infinite;
+        }
+        
+        .animate-spin-slow {
+            animation: spin-slow 10s linear infinite;
+        }
+
+        /* --- Component Classes --- */
+        
+        /* Buttons */
+        .btn-accent {
+            background-color: var(--accent-primary);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-accent::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background-color: rgba(255,255,255,0.2);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn-accent:hover::after {
+            width: 100%;
+        }
+
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px var(--accent-primary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent-primary);
+            color: var(--accent-primary);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 20px var(--accent-primary);
+        }
+
+        /* Cards */
+        .glass-card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.05);
+        }
+        
+        /* Specific hover for Kavidhai cards to use secondary pastel accent */
+        .glass-card.kavidhai-card {
+            border-color: rgba(254, 197, 153, 0.3); /* Subtle pastel border initially */
+        }
+        .glass-card.kavidhai-card:hover {
+            border-color: var(--dl-poetry-accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(254, 197, 153, 0.2);
+        }
+
+        .glass-card:hover .card-icon {
+            color: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Navigation Glass */
+        .nav-glass {
+            background: rgba(11, 11, 11, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-darker);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        /* Form Inputs */
+        .input-dark {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-dark:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.02);
+        }
+
+        /* Skill Tags */
+        .skill-tag {
+            background-color: var(--bg-darker);
+            border: 2px solid transparent;
+            border-radius: 9999px;
+            padding: 8px 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            /* Create a faux-gradient border effect using box-shadow */
+            box-shadow: 0 0 0 2px var(--accent-primary), 0 0 15px rgba(253, 111, 0, 0.6);
+        }
+        
+        /* Stroke Text */
+        .stroke-text {
+            -webkit-text-stroke: 1px rgba(255,255,255,0.1);
+            color: transparent;
+        }
+        
+        .stroke-text:hover {
+            -webkit-text-stroke: 0px;
+        }
+        
+        /* Platform Icon Styling for Footer */
+        .platform-icon {
+            display: inline-block;
+            margin-left: 0.5rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            vertical-align: middle;
+            fill: currentColor;
+        }
+
+        /* Toast Notification System */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background-color: var(--bg-card);
+            border: 1px solid var(--accent-primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-[var(--bg-darker)] text-[var(--text-main)] selection:bg-[var(--accent-primary)] selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 nav-glass transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <a href="#hero" class="text-2xl font-bold tracking-tight group flex items-center gap-2">
+                    <span class="w-8 h-8 bg-[var(--accent-primary)] rounded-lg flex items-center justify-center text-black font-bold text-lg group-hover:rotate-12 transition-transform">S</span>
+                    <span>myself<span class="text-[var(--accent-primary)]">sundaresan</span></span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#about" class="text-gray-300 hover:text-[var(--accent-primary)] text-sm font-medium tracking-wide transition-colors">PROFILE</a>
+                    <a href="#skills" class="text-gray-300 hover:text-[var(--accent-primary)] text-sm font-medium tracking-wide transition-colors">SKILLS</a>
+                    <a href="#projects" class="text-gray-300 hover:text-[var(--accent-primary)] text-sm font-medium tracking-wide transition-colors">PROJECTS</a>
+                    <a href="#publications" class="text-gray-300 hover:text-[var(--accent-primary)] text-sm font-medium tracking-wide transition-colors">RESEARCH</a>
+                    <a href="#poetry-showcase" class="text-gray-300 hover:text-[var(--dl-poetry-accent)] text-sm font-medium tracking-wide transition-colors">VERSES</a>
+                    <a href="#contact" class="px-6 py-2.5 rounded-full btn-accent font-semibold text-sm">LET'S CONNECT</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                    <span class="material-symbols-outlined text-3xl">menu</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center gap-8 md:hidden">
+            <button class="absolute top-6 right-6 text-white" onclick="toggleMobileMenu()">
+                <span class="material-symbols-outlined text-4xl">close</span>
+            </button>
+            <a href="#about" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Profile</a>
+            <a href="#skills" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Skills</a>
+            <a href="#projects" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Projects</a>
+            <a href="#publications" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Research</a>
+            <a href="#poetry-showcase" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--dl-poetry-accent)]">Verses</a>
+            <a href="#contact" onclick="toggleMobileMenu()" class="text-[var(--accent-primary)] text-3xl font-bold">Contact</a>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+
+        <!-- 1. Hero Section -->
+        <section id="hero" class="min-h-screen flex items-center relative pt-20 overflow-hidden">
+            <!-- Abstract Background Elements -->
+            <div class="absolute top-20 right-0 w-[500px] h-[500px] bg-[var(--accent-primary)] rounded-full mix-blend-screen filter blur-[120px] opacity-20 animate-float"></div>
+            <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600 rounded-full mix-blend-screen filter blur-[100px] opacity-10 animate-float" style="animation-delay: -3s;"></div>
+
+            <div class="relative z-10 w-full">
+                <!-- GRID UPDATE: Added lg:items-start to ensure top alignment on desktop -->
+                <div class="grid lg:grid-cols-2 gap-12 items-center lg:items-start">
+                    <div class="order-2 lg:order-1 reveal active text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--accent-primary)] bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] font-medium text-sm mb-6 sm:mb-8">
+                            <span class="relative flex h-2 w-2">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--accent-primary)] opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-2 w-2 bg-[var(--accent-primary)]"></span>
+                            </span>
+                            M.Sc. Candidate (Biochemistry)
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.1] mb-4">
+                            Myself <br class="lg:hidden">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent-primary)] to-white">Sundaresan Nithiyanandam.</span>
+                        </h1>
+                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-8 leading-tight">
+                            Medical Biochemical & Clinical <br class="hidden lg:block"> Automation Expert.
+                        </h2>
+                        <p class="text-lg sm:text-xl text-gray-400 max-w-lg leading-relaxed mb-8 sm:mb-10 mx-auto lg:mx-0">
+                            I bridge advanced medical lab diagnostics with practical software engineering, developing tools that enhance research and laboratory efficiency.
+                        </p>
+                        <div class="flex flex-wrap justify-center lg:justify-start gap-4">
+                            <a href="#projects" class="btn-accent px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-base sm:text-lg">
+                                View Featured Projects
+                            </a>
+                            <a href="#contact" class="btn-outline px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-base sm:text-lg">
+                                Contact Me
+                            </a>
+                        </div>
+                        
+                        <!-- Tech Stack Mini -->
+                        <div class="mt-12 sm:mt-16 border-t border-gray-800 pt-8">
+                            <p class="text-sm text-gray-500 uppercase tracking-widest font-semibold mb-4">Dual Expertise In</p>
+                            <div class="flex justify-center lg:justify-start gap-4 sm:gap-6 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                                <span class="material-symbols-outlined text-2xl sm:text-3xl" title="Biotech">biotech</span>
+                                <span class="material-symbols-outlined text-2xl sm:text-3xl" title="Code">code</span>
+                                <span class="material-symbols-outlined text-2xl sm:text-3xl" title="Science">science</span>
+                                <span class="material-symbols-outlined text-2xl sm:text-3xl" title="Database">database</span>
+                                <span class="material-symbols-outlined text-2xl sm:text-3xl" title="Mobile">smartphone</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-1 lg:order-2 flex justify-center lg:justify-end reveal active delay-200">
+                        <!-- Wrapper to keep floating cards relative to image, not screen -->
+                        <div class="relative w-fit mx-auto">
+                            <!-- Updated Hero Image Container (Removed grey bg and border) -->
+                            <!-- IMAGE UPDATE: Removed bg-[var(--bg-card)] and border classes to show image only -->
+                            <div class="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 rounded-full shadow-2xl animate-float z-20 overflow-hidden group">
+                                <img src="profile.png" 
+                                     alt="Sundaresan Profile" 
+                                     class="w-full h-full object-cover rounded-full transition-transform duration-1000 group-hover:scale-105">
+                                
+                                <!-- Floating Status Ring -->
+                                <div class="absolute inset-0 rounded-full ring-4 ring-[var(--accent-primary)]/50 ring-offset-4 ring-offset-[var(--bg-darker)] animate-spin-slow pointer-events-none"></div>
+                            </div>
+
+                            <!-- Floating Card 1: Education (Adjusted position) -->
+                            <div class="absolute -top-4 -right-4 sm:top-0 sm:-right-8 z-10 glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl animate-float shadow-lg" style="animation-delay: 1s;">
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <span class="material-symbols-outlined text-xl sm:text-2xl text-[var(--accent-primary)] card-icon">school</span>
+                                    <div>
+                                        <p class="text-xs sm:text-sm font-semibold text-white">M.Sc. Biochem</p>
+                                        <p class="text-[10px] sm:text-xs text-gray-400">Saveetha Med</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Floating Card 2: Digital Work (Adjusted position) -->
+                            <div class="absolute -bottom-4 -left-4 sm:bottom-4 sm:-left-12 z-20 glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl animate-float shadow-lg" style="animation-delay: 2s;">
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <span class="material-symbols-outlined text-xl sm:text-2xl text-[var(--accent-primary)] card-icon">terminal</span>
+                                    <div>
+                                        <p class="text-xs sm:text-sm font-semibold text-white">Beginner Developer — Apps, Web & Tools</p>
+                                        <p class="text-[10px] sm:text-xs text-gray-400">Flutter • JavaScript • Extensions</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scrolling Skills Marquee -->
+        <div class="py-12 border-y border-gray-800 bg-[var(--bg-card)]/50 backdrop-blur-sm overflow-hidden relative">
+            <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[var(--bg-darker)] to-transparent z-10"></div>
+            <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[var(--bg-darker)] to-transparent z-10"></div>
+            
+            <div class="flex gap-16 animate-marquee whitespace-nowrap items-center">
+                <span class="text-4xl font-bold text-gray-700 stroke-text hover:text-[var(--accent-primary)] transition-colors">MEDICAL LABORATORY TECH</span>
+                <span class="text-4xl font-bold text-[var(--accent-primary)]">•</span>
+                <span class="text-4xl font-bold text-gray-700 stroke-text hover:text-[var(--accent-primary)] transition-colors">FLUTTER DEVELOPMENT</span>
+                <span class="text-4xl font-bold text-[var(--accent-primary)]">•</span>
+                <span class="text-4xl font-bold text-gray-700 stroke-text hover:text-[var(--accent-primary)] transition-colors">CLINICAL DATA AUTOMATION</span>
+                <span class="text-4xl font-bold text-[var(--accent-primary)]">•</span>
+                <span class="text-4xl font-bold text-gray-700 stroke-text hover:text-[var(--accent-primary)] transition-colors">M.SC. BIOCHEMISTRY</span>
+                <span class="text-4xl font-bold text-[var(--accent-primary)]">•</span>
+                 <span class="text-4xl font-bold text-gray-700 stroke-text hover:text-[var(--accent-primary)] transition-colors">MEDICAL LABORATORY TECH</span>
+                <span class="text-4xl font-bold text-[var(--accent-primary)]">•</span>
+                <span class="text-4xl font-bold text-gray-700 stroke-text hover:text-[var(--accent-primary)] transition-colors">FLUTTER DEVELOPMENT</span>
+                <span class="text-4xl font-bold text-[var(--accent-primary)]">•</span>
+            </div>
+        </div>
+
+        <!-- 2. About Section -->
+        <section id="about" class="py-24 border-t border-gray-800 reveal">
+            <h2 class="text-5xl font-bold text-center mb-16 text-white">Professional Profile</h2>
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- Card 1 -->
+                <div class="glass-card p-10 rounded-3xl relative group hover:border-[var(--dl-poetry-accent)]">
+                    <div class="mb-6 mt-4 text-[var(--dl-poetry-accent)] card-icon transition-transform duration-300">
+                        <span class="material-symbols-outlined text-5xl">school</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-white">M.Sc. Medical Biochemistry</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Currently pursuing Master's at <strong class="text-white">Saveetha Medical College</strong> (2023-Present), specializing in advanced diagnostic methods. Built on a B.Sc. MLT foundation from Tagore Medical College.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-card p-10 rounded-3xl relative group">
+                    <div class="mb-6 mt-4 text-[var(--accent-primary)] card-icon transition-transform duration-300">
+                        <span class="material-symbols-outlined text-5xl">bloodtype</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-white">Clinical Expertise</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Skilled in clinical biochemistry with experience in routine analytes, enzyme assays, electrolyte analysis, and quality control. Proficient in ELISA, electrophoresis, chromatography techniques, and advanced pipetting practices. Hands-on experience with automated analyzers, calibration, and troubleshooting.
+                    </p>
+
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-card p-10 rounded-3xl relative group">
+                    <div class="mb-6 mt-4 text-[var(--accent-primary)] card-icon transition-transform duration-300">
+                        <span class="material-symbols-outlined text-5xl">terminal</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4 text-white">Digital Strategy</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Actively using JavaScript, Flutter, and SQLite to build tools that automate HIS data extraction and solve lab inefficiencies.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-16">
+                <!-- Switched back to Toast notification for resume as requested -->
+                <button onclick="showToast('Resume coming soon!')" class="inline-block px-8 py-3 text-lg font-bold rounded-full btn-outline transition duration-300 transform hover:scale-[1.05] text-center">
+                    Download Full Resume (PDF)
+                </button>
+            </div>
+        </section>
+        
+        <!-- 3. Skills Section -->
+        <section id="skills" class="py-24 border-t border-gray-800 reveal">
+            <h2 class="text-5xl font-bold text-center mb-16 text-white">Technology & Domain Skills</h2>
+            <div class="max-w-4xl mx-auto flex flex-wrap justify-center gap-4">
+                <span class="skill-tag">Medical Biochemistry</span>
+                <span class="skill-tag">Clinical Laboratory Techniques</span>
+                <span class="skill-tag">Chemzy - Inventory Management</span>
+                <span class="skill-tag">Clinical Data Extraction (HIS)</span>
+                <span class="skill-tag">Flutter & Dart</span>
+                <span class="skill-tag">JavaScript</span>
+                <span class="skill-tag">Chrome Extensions</span>
+                <span class="skill-tag">Git & GitHub Pages</span>
+            </div>
+        </section>
+
+        <!-- 4. Projects Section -->
+        <section id="projects" class="py-32 bg-[#0F0F0F]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 reveal">
+                    <div>
+                        <h2 class="text-4xl md:text-6xl font-bold mb-4 text-white">Digital Automation</h2>
+                        <p class="text-gray-400 max-w-xl text-lg">Tools engineered to enhance clinical and research workflows.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-16">
+                    <!-- Project 1: Chemzy -->
+                    <div class="glass-card p-8 sm:p-12 rounded-[2rem] flex flex-col md:flex-row gap-10 shadow-2xl transition duration-500 reveal">
+                        <div class="md:w-1/3 bg-[#1a1a1a] p-8 rounded-3xl flex items-center justify-center min-h-[250px] border border-gray-800 group-hover:border-[var(--accent-primary)]/50 transition-colors duration-500">
+                            <p class="text-[var(--accent-primary)] font-bold text-4xl">Chemzy</p>
+                        </div>
+                        <div class="md:w-2/3">
+                            <span class="text-sm font-bold text-[var(--accent-primary)] tracking-widest uppercase mb-2 block">Cross-Platform Utility (Flutter)</span>
+                            <h3 class="text-3xl font-bold mb-4 text-white">Lab Inventory & Calculator Suite</h3>
+                            <p class="text-gray-400 text-lg mb-6 leading-relaxed">
+                                Engineered a fully responsive app for Inventory, SOP Management, and Scientific Calculators (Molarity, PCR, eGFR). Features QR code scanning, Local Network Data Transfer, and multi-user login. Built with Flutter and SQLite for high-performance clinical utility.
+                            </p>
+                            <a href="https://github.com/myselfsundaresan/ChemzyApp" target="_blank" class="inline-flex items-center text-[var(--accent-primary)] font-bold hover:underline transition duration-200">
+                                View Flutter Source <span class="material-symbols-outlined ml-2 text-xl">arrow_outward</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 2: MIAS Suite -->
+                    <div class="glass-card p-8 sm:p-12 rounded-[2rem] flex flex-col md:flex-row-reverse gap-10 shadow-2xl transition duration-500 reveal hover:border-[var(--dl-poetry-accent)]">
+                        <div class="md:w-1/3 bg-[#1a1a1a] p-8 rounded-3xl flex items-center justify-center min-h-[250px] border border-gray-800 group-hover:border-[var(--dl-poetry-accent)]/50 transition-colors duration-500">
+                            <p class="text-[var(--dl-poetry-accent)] font-bold text-4xl">MIAS Suite</p>
+                        </div>
+                        <div class="md:w-2/3 text-right md:text-left">
+                            <span class="text-sm font-bold text-[var(--dl-poetry-accent)] tracking-widest uppercase mb-2 block">Research Automation (JS/Chrome API)</span>
+                            <h3 class="text-3xl font-bold mb-4 text-white">HIS Data Extraction Tool</h3>
+                            <p class="text-gray-400 text-lg mb-6 leading-relaxed">
+                                Developed a Chrome Extension to automate the extraction and categorization of biochemical test data from the Hospital Information System (HIS). Reduces manual workload for researchers by securely capturing patient records and storing them locally using IndexedDB for seamless CSV report generation.
+                            </p>
+                            <a href="https://github.com/myselfsundaresan/MIAS-Suite" target="_blank" class="inline-flex items-center text-[var(--dl-poetry-accent)] font-bold hover:underline transition duration-200">
+                                View Extension Source <span class="material-symbols-outlined ml-2 text-xl">arrow_outward</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 5. Research Publications Section (New) -->
+        <section id="publications" class="py-24 border-t border-gray-800 reveal">
+            <h2 class="text-5xl font-bold text-center mb-16 text-white">Research Publications</h2>
+            <div class="max-w-4xl mx-auto px-4">
+                <!-- Paper Card -->
+                <div class="glass-card p-8 rounded-2xl border border-gray-800 hover:border-[var(--accent-primary)] transition-all duration-300">
+                    <div class="flex flex-col md:flex-row gap-6 items-start">
+                        <div class="flex-1">
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-3 py-1 text-xs font-bold rounded-full bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20">Asian Journal of Chemistry</span>
+                                <span class="px-3 py-1 text-xs font-bold rounded-full bg-gray-800 text-gray-400 border border-gray-700">2025</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-3 leading-tight">
+                                Synthesis, Characterization, Molecular Docking, Cell Viability and Biological Activity of New Cresol Analogues
+                            </h3>
+                            <p class="text-sm text-gray-400 mb-4">
+                                Co-authored with N.K. Fuloria, L. Thangavelu, <strong>N. Sundaresan</strong>, et al.
+                            </p>
+                            <p class="text-gray-300 leading-relaxed mb-6">
+                                Designed and synthesized novel cresol derivatives (NCDs) targeting <em>Monilial vulvovaginitis</em> pathogens. Demonstrated high docking scores against <em>C. albicans</em> CYP51 and <em>S. aureus</em> DNA Gyrase B, significantly potent antimicrobial activity, and negligible cytotoxicity in HEK-293 cells.
+                            </p>
+                            <div class="flex gap-4">
+                                <a href="https://doi.org/10.14233/ajchem.2025.34713" target="_blank" class="inline-flex items-center text-[var(--accent-primary)] font-bold hover:underline">
+                                    Read Paper <span class="material-symbols-outlined ml-1 text-lg">open_in_new</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ORCID Link -->
+                <div class="mt-12 text-center">
+                    <a href="https://orcid.org/0009-0001-1347-944X" target="_blank" class="inline-flex items-center gap-2 px-8 py-4 rounded-full btn-outline font-bold text-lg hover:bg-[var(--accent-primary)] hover:text-white transition-all">
+                        <span class="material-symbols-outlined">id_card</span>
+                        View Full List on ORCID
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Poetry Showcase Section (Adapted Colors) -->
+        <section id="poetry-showcase" class="py-32 border-t border-gray-800 reveal">
+            <h3 class="text-4xl font-bold text-center mb-6 text-white tracking-wider">Tamil Poetics Showcase <span class="text-[var(--dl-poetry-accent)]">(Kavidhai)</span></h3>
+            <p class="text-lg text-gray-400 max-w-3xl mx-auto text-center mb-12 font-light">
+                A selection of my published verse from Instagram (<a href="https://www.instagram.com/mr.kavinjan/" target="_blank" class="text-[var(--dl-poetry-accent)] hover:text-white transition-colors font-medium">@mr.kavinjan</a>), showcasing the creative side alongside the scientific.
+            </p>
+
+            <!-- Marquee Container -->
+            <div class="relative overflow-hidden py-10">
+                <!-- Gradients for fade effect -->
+                <div class="absolute left-0 top-0 bottom-0 w-20 md:w-40 bg-gradient-to-r from-[var(--bg-darker)] to-transparent z-10"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-20 md:w-40 bg-gradient-to-l from-[var(--bg-darker)] to-transparent z-10"></div>
+
+                <!-- Scrolling Wrapper -->
+                <div class="flex gap-8 animate-marquee-slow hover:[animation-play-state:paused]" id="kavidhai-marquee">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+            
+            <div class="text-center mt-16">
+                 <a href="https://www.instagram.com/mr.kavinjan/" target="_blank" class="inline-block px-8 py-3 text-lg font-bold rounded-full btn-outline" style="border-color: var(--dl-poetry-accent); color: var(--dl-poetry-accent); background-color: transparent;">
+                    See All Posts on Instagram &rarr;
+                </a>
+            </div>
+        </section>
+
+        <!-- Contact & Footer -->
+        <section id="contact" class="py-16 relative">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="glass-card rounded-3xl p-8 md:p-12 text-center relative overflow-hidden reveal">
+                    <!-- Background Glow -->
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-[var(--accent-primary)]/10 to-transparent pointer-events-none"></div>
+                    
+                    <h2 class="text-3xl md:text-5xl font-bold mb-6 relative z-10 text-white">Ready to connect?</h2>
+                    <p class="text-lg text-gray-400 mb-8 max-w-2xl mx-auto relative z-10">
+                        I’m always open to connecting with professionals, researchers, and developers. If you’d like to collaborate, discuss clinical diagnostics, or explore digital solutions for laboratory workflows, feel free to reach out.
+                    </p>
+
+                    <div class="flex flex-col md:flex-row justify-center gap-4 relative z-10">
+                        <a href="mailto:sundaresan.n08@gmail.com" class="btn-accent px-8 py-3 rounded-full font-bold text-base shadow-2xl flex items-center justify-center gap-2">
+                            Email Me
+                            <span class="material-symbols-outlined">mail</span>
+                        </a>
+                    </div>
+
+                    <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10 justify-items-center">
+                        <a href="https://www.linkedin.com/in/myselfsundar/" class="text-gray-400 hover:text-[var(--accent-primary)] transition-colors transform hover:-translate-y-1">
+                            <span class="text-sm font-bold tracking-widest uppercase">LinkedIn</span>
+                        </a>
+                        <a href="https://orcid.org/0009-0001-1347-944X" class="text-gray-400 hover:text-[var(--accent-primary)] transition-colors transform hover:-translate-y-1">
+                            <span class="text-sm font-bold tracking-widest uppercase">ORCID</span>
+                        </a>
+                        <a href="https://github.com/myselfsundaresan" target="_blank" class="text-gray-400 hover:text-[var(--accent-primary)] transition-colors transform hover:-translate-y-1">
+                            <span class="text-sm font-bold tracking-widest uppercase">GitHub</span>
+                        </a>
+                        <a href="https://www.instagram.com/mr.kavinjan/" target="_blank" class="text-gray-400 hover:text-[var(--accent-primary)] transition-colors transform hover:-translate-y-1">
+                            <span class="text-sm font-bold tracking-widest uppercase">Instagram</span>
+                        </a>
+                    </div>
+                </div>
+
+                <footer class="text-center mt-12 text-gray-600 text-sm">
+                    <p>&copy; <span id="current-year"></span> Developed & Maintained by Sundaresan Nithiyanandam.</p>
+                    <p class="mt-2">All rights reserved.</p>
+                
+                </footer>
+            </div>
+        </section>
+        
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
+    </main>
+
+    <!-- Interactivity Script -->
+    <script>
+        // 1. Scroll Reveal Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+
+        // 2. Mobile Menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('translate-x-full');
+        }
+
+        // 3. Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    const headerHeight = document.querySelector('nav').offsetHeight;
+                    const offset = targetElement.offsetTop - headerHeight - 10; 
+                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                    document.getElementById('mobile-menu')?.classList.add('translate-x-full');
+                }
+            });
+        });
+        
+        // 4. Poetry Grid Population
+        const kavidhaiMarquee = document.getElementById('kavidhai-marquee');
+        
+        // Placeholder Tamil Quotes (Replace these strings with your actual works)
+        const tamilQuotes = [
+            "முயற்சி திருவினையாக்கும்\n(Effort results in success)",
+            "யாதும் ஊரே யாவரும் கேளிர்\n(Every country is my own, and all men are my kin)",
+            "கற்க கசடறக் கற்பவை\n(Learn thoroughly what needs to be learned)",
+            "அன்பே சிவம்\n(Love is God)",
+            "வாய்மையே வெல்லும்\n(Truth alone triumphs)",
+            "அறிவே ஆற்றல்\n(Knowledge is power)",
+            "காலம் பொன் போன்றது\n(Time is gold)",
+            "தர்மம் தலைகாக்கும்\n(Dharma protects those who protect it)",
+            "நோயற்ற வாழ்வே குறைவற்ற செல்வம்\n(Health is wealth)",
+            "ஒன்று பட்டால் உண்டு வாழ்வு\n(Unity is strength)"
+        ];
+
+        if (kavidhaiMarquee) {
+            // Function to create a card
+            const createCard = (text, index) => {
+                const card = document.createElement('div');
+                card.className = 'glass-card kavidhai-card p-8 rounded-2xl flex-shrink-0 w-80 md:w-96 flex flex-col justify-center min-h-[200px] border border-gray-800 transition-all duration-300 hover:scale-105 cursor-default bg-black/40 backdrop-blur-md';
+                card.innerHTML = `
+                    <div class="text-[var(--dl-poetry-accent)] mb-4 opacity-50">
+                        <span class="material-symbols-outlined text-4xl">format_quote</span>
+                    </div>
+                    <p class="text-xl md:text-2xl font-bold text-white leading-relaxed font-serif whitespace-pre-line">${text}</p>
+                    <div class="mt-6 flex justify-between items-center">
+                        <span class="text-xs text-gray-500 uppercase tracking-widest">Kavidhai #${index + 1}</span>
+                        <span class="material-symbols-outlined text-[var(--dl-poetry-accent)] opacity-0 group-hover:opacity-100 transition-opacity">favorite</span>
+                    </div>
+                `;
+                return card;
+            };
+
+            // Double the array to ensure smooth infinite scroll
+            // We append the list twice so there is no gap when the animation loops
+            [...tamilQuotes, ...tamilQuotes].forEach((quote, i) => {
+                kavidhaiMarquee.appendChild(createCard(quote, i % tamilQuotes.length));
+            });
+        }
+
+        // 5. Toast Notification Logic
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <span class="material-symbols-outlined text-[var(--accent-primary)]">info</span>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+
+            // Trigger reflow
+            void toast.offsetWidth;
+            
+            // Show
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
