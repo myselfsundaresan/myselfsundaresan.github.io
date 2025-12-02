@@ -166,6 +166,7 @@
         .nav-glass {
             background: rgba(11, 11, 11, 0.8);
             backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); /* Added for Mobile Safari support */
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
@@ -260,9 +261,48 @@
         .toast.show {
             transform: translateX(0);
         }
+        
+        /* New class for the specific Mobile Menu Card */
+        .glass-menu-card {
+            background-color: rgba(0, 0, 0, 0.85); /* Black semi-transparent background */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Morph Avatar Styles */
+        #morph-avatar {
+            position: fixed;
+            z-index: 60; /* Higher than navbar z-40 */
+            pointer-events: none; /* Let clicks pass through to links */
+            transition: transform 0.1s linear, width 0.1s linear, height 0.1s linear, opacity 0.3s ease;
+            transform-origin: top left;
+            will-change: top, left, width, height, transform;
+        }
+
+        /* Custom Horizontal Scrollbar for Marquee Section */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px; /* Horizontal scrollbar height */
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--dl-poetry-accent); /* Using the poetry accent color */
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
     </style>
 </head>
 <body class="bg-[var(--bg-darker)] text-[var(--text-main)] selection:bg-[var(--accent-primary)] selection:text-white">
+
+    <!-- Morphing Avatar Element (Enabled for all screens now) -->
+    <!-- Removed 'hidden md:block' so it works on mobile -->
+    <img src="profile.png" id="morph-avatar" alt="Morphing Profile" class="rounded-full shadow-2xl opacity-0 fixed top-0 left-0">
 
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-40 nav-glass transition-all duration-300" id="navbar">
@@ -270,7 +310,10 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <a href="#hero" class="text-2xl font-bold tracking-tight group flex items-center gap-2">
-                    <span class="w-8 h-8 bg-[var(--accent-primary)] rounded-lg flex items-center justify-center text-black font-bold text-lg group-hover:rotate-12 transition-transform">S</span>
+                    <!-- ID added for Morph Target -->
+                    <div id="navbar-logo-target" class="relative w-8 h-8">
+                        <span id="navbar-logo-s" class="absolute inset-0 bg-[var(--accent-primary)] rounded-lg flex items-center justify-center text-black font-bold text-lg group-hover:rotate-12 transition-transform">S</span>
+                    </div>
                     <span>myself<span class="text-[var(--accent-primary)]">sundaresan</span></span>
                 </a>
 
@@ -292,16 +335,24 @@
         </div>
         
         <!-- Mobile Menu Overlay -->
-        <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center gap-8 md:hidden">
-            <button class="absolute top-6 right-6 text-white" onclick="toggleMobileMenu()">
-                <span class="material-symbols-outlined text-4xl">close</span>
-            </button>
-            <a href="#about" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Profile</a>
-            <a href="#skills" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Skills</a>
-            <a href="#projects" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Projects</a>
-            <a href="#publications" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--accent-primary)]">Research</a>
-            <a href="#poetry-showcase" onclick="toggleMobileMenu()" class="text-3xl font-bold hover:text-[var(--dl-poetry-accent)]">Verses</a>
-            <a href="#contact" onclick="toggleMobileMenu()" class="text-[var(--accent-primary)] text-3xl font-bold">Contact</a>
+        <!-- Fixed: Changed alignment to items-start with pt-28 to prevent top cropping -->
+        <div id="mobile-menu" class="fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 flex justify-center items-start pt-28 md:hidden bg-black/60 backdrop-blur-sm">
+            <!-- Glassy Card Container -->
+            <!-- max-h updated to ensure it fits with the new top padding -->
+            <div class="glass-menu-card w-[85%] max-w-sm max-h-[80vh] overflow-y-auto rounded-3xl p-8 relative flex flex-col gap-6 items-center">
+                <button class="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors" onclick="toggleMobileMenu()">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                </button>
+                
+                <div class="mb-2 text-[var(--accent-primary)] font-bold tracking-widest text-xs uppercase">Menu</div>
+                
+                <a href="#about" onclick="toggleMobileMenu()" class="text-2xl font-bold text-white hover:text-[var(--accent-primary)] transition-colors">Profile</a>
+                <a href="#skills" onclick="toggleMobileMenu()" class="text-2xl font-bold text-white hover:text-[var(--accent-primary)] transition-colors">Skills</a>
+                <a href="#projects" onclick="toggleMobileMenu()" class="text-2xl font-bold text-white hover:text-[var(--accent-primary)] transition-colors">Projects</a>
+                <a href="#publications" onclick="toggleMobileMenu()" class="text-2xl font-bold text-white hover:text-[var(--accent-primary)] transition-colors">Research</a>
+                <a href="#poetry-showcase" onclick="toggleMobileMenu()" class="text-2xl font-bold text-white hover:text-[var(--dl-poetry-accent)] transition-colors">Verses</a>
+                <a href="#contact" onclick="toggleMobileMenu()" class="text-[var(--accent-primary)] text-2xl font-bold mt-4 border border-[var(--accent-primary)] px-6 py-2 rounded-full hover:bg-[var(--accent-primary)] hover:text-white transition-all">Contact</a>
+            </div>
         </div>
     </nav>
 
@@ -360,10 +411,11 @@
                         <!-- Wrapper to keep floating cards relative to image, not screen -->
                         <div class="relative w-fit mx-auto">
                             <!-- Updated Hero Image Container (Removed grey bg and border) -->
-                            <!-- IMAGE UPDATE: Removed bg-[var(--bg-card)] and border classes to show image only -->
-                            <div class="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 rounded-full shadow-2xl animate-float z-20 overflow-hidden group">
+                            <!-- IMAGE UPDATE: Added ID for Morph Source -->
+                            <div id="hero-image-source" class="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-72 lg:h-72 rounded-full shadow-2xl animate-float z-20 overflow-hidden group">
                                 <img src="profile.png" 
                                      alt="Sundaresan Profile" 
+                                     id="hero-profile-img"
                                      class="w-full h-full object-cover rounded-full transition-transform duration-1000 group-hover:scale-105">
                                 
                                 <!-- Floating Status Ring -->
@@ -375,8 +427,8 @@
                                 <div class="flex items-center gap-2 sm:gap-3">
                                     <span class="material-symbols-outlined text-xl sm:text-2xl text-[var(--accent-primary)] card-icon">school</span>
                                     <div>
-                                        <p class="text-xs sm:text-sm font-semibold text-white">M.Sc. Biochem</p>
-                                        <p class="text-[10px] sm:text-xs text-gray-400">Saveetha Med</p>
+                                        <p class="text-xs sm:text-sm font-semibold text-white">M.Sc. Biochemistry</p>
+                                        <p class="text-[10px] sm:text-xs text-gray-400">Saveetha Medical College</p>
                                     </div>
                                 </div>
                             </div>
@@ -568,7 +620,7 @@
             </div>
         </section>
 
-        <!-- Poetry Showcase Section (Adapted Colors) -->
+        <!-- Poetry Showcase Section (Adapted Colors & Manual Scroll) -->
         <section id="poetry-showcase" class="py-32 border-t border-gray-800 reveal">
             <h3 class="text-4xl font-bold text-center mb-6 text-white tracking-wider">Tamil Poetics Showcase <span class="text-[var(--dl-poetry-accent)]">(Kavidhai)</span></h3>
             <p class="text-lg text-gray-400 max-w-3xl mx-auto text-center mb-12 font-light">
@@ -576,13 +628,21 @@
             </p>
 
             <!-- Marquee Container -->
-            <div class="relative overflow-hidden py-10">
+            <div class="relative py-10">
                 <!-- Gradients for fade effect -->
-                <div class="absolute left-0 top-0 bottom-0 w-20 md:w-40 bg-gradient-to-r from-[var(--bg-darker)] to-transparent z-10"></div>
-                <div class="absolute right-0 top-0 bottom-0 w-20 md:w-40 bg-gradient-to-l from-[var(--bg-darker)] to-transparent z-10"></div>
+                <div class="absolute left-0 top-0 bottom-0 w-20 md:w-40 bg-gradient-to-r from-[var(--bg-darker)] to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute right-0 top-0 bottom-0 w-20 md:w-40 bg-gradient-to-l from-[var(--bg-darker)] to-transparent z-10 pointer-events-none"></div>
 
-                <!-- Scrolling Wrapper -->
-                <div class="flex gap-8 animate-marquee-slow hover:[animation-play-state:paused]" id="kavidhai-marquee">
+                <!-- Controls -->
+                <div class="absolute top-0 right-4 z-20">
+                    <button id="marquee-toggle" class="bg-[var(--bg-card)] text-[var(--dl-poetry-accent)] border border-[var(--dl-poetry-accent)] rounded-full p-2 hover:bg-[var(--dl-poetry-accent)] hover:text-black transition-all shadow-lg">
+                        <span class="material-symbols-outlined" id="marquee-icon">pause</span>
+                    </button>
+                </div>
+
+                <!-- Scrolling Wrapper (JS Controlled) -->
+                <!-- Changed overflow-hidden to overflow-x-auto to allow manual scrolling -->
+                <div class="flex gap-8 overflow-x-auto custom-scrollbar pb-6" id="kavidhai-marquee-container">
                     <!-- Content injected via JS -->
                 </div>
             </div>
@@ -630,8 +690,8 @@
                 </div>
 
                 <footer class="text-center mt-12 text-gray-600 text-sm">
-                    <p>&copy; <span id="current-year"></span> Developed & Maintained by Sundaresan Nithiyanandam.</p>
-                    <p class="mt-2">All rights reserved.</p>
+                    <p></p></span> Developed & Maintained by Sundaresan Nithiyanandam.</p>
+                    <p class="mt-2">&copy; <span id="current-year"></span> All rights reserved.</p>
                 
                 </footer>
             </div>
@@ -679,8 +739,12 @@
             });
         });
         
-        // 4. Poetry Grid Population
-        const kavidhaiMarquee = document.getElementById('kavidhai-marquee');
+        // 4. Poetry Grid Population & Auto Scroll Logic
+        const marqueeContainer = document.getElementById('kavidhai-marquee-container');
+        const marqueeToggle = document.getElementById('marquee-toggle');
+        const marqueeIcon = document.getElementById('marquee-icon');
+        let isPaused = false;
+        let animationId;
         
         // Placeholder Tamil Quotes (Replace these strings with your actual works)
         const tamilQuotes = [
@@ -696,7 +760,7 @@
             "ஒன்று பட்டால் உண்டு வாழ்வு\n(Unity is strength)"
         ];
 
-        if (kavidhaiMarquee) {
+        if (marqueeContainer) {
             // Function to create a card
             const createCard = (text, index) => {
                 const card = document.createElement('div');
@@ -714,11 +778,42 @@
                 return card;
             };
 
-            // Double the array to ensure smooth infinite scroll
+            // Populate content (Duplicated for seamless loop illusion)
             // We append the list twice so there is no gap when the animation loops
             [...tamilQuotes, ...tamilQuotes].forEach((quote, i) => {
-                kavidhaiMarquee.appendChild(createCard(quote, i % tamilQuotes.length));
+                marqueeContainer.appendChild(createCard(quote, i % tamilQuotes.length));
             });
+
+            // JS-based Infinite Scroll Logic
+            const speed = 1; // Pixels per frame
+            
+            function animateScroll() {
+                if (!isPaused) {
+                    marqueeContainer.scrollLeft += speed;
+                    
+                    // Reset if scrolled past half the width (the first set of items)
+                    // We check if scrollLeft >= (totalScrollWidth / 2)
+                    if (marqueeContainer.scrollLeft >= (marqueeContainer.scrollWidth / 2)) {
+                        marqueeContainer.scrollLeft = 0;
+                    }
+                }
+                animationId = requestAnimationFrame(animateScroll);
+            }
+
+            // Start animation
+            animationId = requestAnimationFrame(animateScroll);
+
+            // Toggle Button Logic
+            if (marqueeToggle) {
+                marqueeToggle.addEventListener('click', () => {
+                    isPaused = !isPaused;
+                    marqueeIcon.textContent = isPaused ? 'play_arrow' : 'pause';
+                });
+            }
+            
+            // Optional: Pause on hover? User asked for button, but this is good UX.
+            // marqueeContainer.addEventListener('mouseenter', () => isPaused = true);
+            // marqueeContainer.addEventListener('mouseleave', () => isPaused = false);
         }
 
         // 5. Toast Notification Logic
@@ -748,6 +843,94 @@
                 }, 300);
             }, 3000);
         }
+
+        // 6. Smooth Scroll Morph Animation
+        function initMorphAnimation() {
+            const morphAvatar = document.getElementById('morph-avatar');
+            const heroImg = document.getElementById('hero-profile-img');
+            const navTarget = document.getElementById('navbar-logo-target');
+            const navS = document.getElementById('navbar-logo-s');
+            
+            if (!morphAvatar || !heroImg || !navTarget || !navS) return;
+
+            // Scroll handler
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+                const triggerPoint = 50; // Start animating after 50px
+                const endPoint = 400; // Finish animating at 400px (approx hero height)
+                
+                // Get geometry
+                const heroRect = heroImg.getBoundingClientRect();
+                const navRect = navTarget.getBoundingClientRect();
+
+                if (scrollY < triggerPoint) {
+                    // Reset to initial state
+                    morphAvatar.style.opacity = '0';
+                    heroImg.style.opacity = '1';
+                    navS.style.opacity = '1'; 
+                } else {
+                    morphAvatar.classList.remove('hidden');
+                    morphAvatar.style.opacity = '1';
+                    heroImg.style.opacity = '0'; // Hide original hero image
+                    
+                    // Calculate progress (0 to 1)
+                    let progress = (scrollY - triggerPoint) / (endPoint - triggerPoint);
+                    if (progress > 1) progress = 1;
+                    if (progress < 0) progress = 0;
+
+                    // Interpolate
+                    const startTop = heroRect.top;
+                    const startLeft = heroRect.left;
+                    const startWidth = heroRect.width;
+                    const startHeight = heroRect.height;
+
+                    const endTop = navRect.top;
+                    const endLeft = navRect.left;
+                    const endWidth = navRect.width;
+                    const endHeight = navRect.height;
+
+                    // Interpolate values
+                    // Use a ease function for smoothness
+                    const ease = t => t * (2 - t); // Ease out
+                    const p = ease(progress);
+
+                    // If progress is 1 (fully scrolled), snap to navbar
+                    if (progress === 1) {
+                        morphAvatar.style.top = endTop + 'px';
+                        morphAvatar.style.left = endLeft + 'px';
+                        morphAvatar.style.width = endWidth + 'px';
+                        morphAvatar.style.height = endHeight + 'px';
+                        navS.style.opacity = '0'; // Hide S logo
+                    } else {
+                        // Interpolating
+                        const currentTop = startTop + (endTop - startTop) * p;
+                        const currentLeft = startLeft + (endLeft - startLeft) * p;
+                        const currentWidth = startWidth + (endWidth - startWidth) * p;
+                        const currentHeight = startHeight + (endHeight - startHeight) * p;
+
+                        morphAvatar.style.top = currentTop + 'px';
+                        morphAvatar.style.left = currentLeft + 'px';
+                        morphAvatar.style.width = currentWidth + 'px';
+                        morphAvatar.style.height = currentHeight + 'px';
+                        navS.style.opacity = '0'; // Hide S logo during transition
+                    }
+                }
+            });
+        }
+
+        // Initialize Animation
+        initMorphAnimation();
+        
+        // Handle Resize to reset
+        window.addEventListener('resize', () => {
+             const morphAvatar = document.getElementById('morph-avatar');
+             if (morphAvatar) morphAvatar.style.opacity = '0';
+             const heroImg = document.getElementById('hero-profile-img');
+             if (heroImg) heroImg.style.opacity = '1';
+             const navS = document.getElementById('navbar-logo-s');
+             if (navS) navS.style.opacity = '1';
+        });
+
     </script>
 </body>
 </html>
