@@ -56,18 +56,22 @@
    GLOBAL & PERFORMANCE OPTIMIZATIONS
 ═══════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: auto; font-size: 16px; } 
+
+html, body { 
+  scroll-behavior: smooth; 
+  font-size: 16px; 
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling/zooming */
+} 
 
 body {
   font-family: 'Outfit', sans-serif;
   background-color: var(--bg-base);
   color: var(--text-primary);
   line-height: 1.6;
-  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.8s var(--ease-fluid);
-  perspective: 1000px; /* For 3D Tilt */
 }
 
 ::selection { background: var(--accent); color: #fff; }
@@ -79,7 +83,16 @@ img { max-width: 100%; display: block; object-fit: cover; }
 .serif { font-family: 'Playfair Display', serif; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
+/* Font scaling and word wrapping fixes for mobile */
+h1, h2, h3, h4 { 
+  line-height: 1.05; 
+  font-weight: 700; 
+  letter-spacing: -0.02em; 
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
 .grad-text {
   background: linear-gradient(120deg, var(--accent), var(--accent-light), #ffd3b6);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -92,13 +105,16 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
   text-transform: uppercase; letter-spacing: 0.25em; color: var(--accent); margin-bottom: 1.25rem; font-weight: 500;
 }
 
-.container { width: 100%; max-width: 1360px; margin: 0 auto; padding: 0 2rem; }
-.section { padding: 12rem 0; position: relative; z-index: 10; }
+.container { width: 100%; max-width: 1360px; margin: 0 auto; padding: 0 1.25rem; }
+@media (min-width: 768px) { .container { padding: 0 2rem; } }
+
+.section { padding: 6rem 0; position: relative; z-index: 10; }
+@media (min-width: 768px) { .section { padding: 12rem 0; } }
 
 /* ═══════════════════════════════════════════════
    HARDWARE-ACCELERATED AMBIENT ENGINE
 ═══════════════════════════════════════════════ */
-.ambient-container { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+.ambient-container { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
 .orb { 
   position: absolute; border-radius: 50%; opacity: 0.9;
   will-change: transform; transform: translate3d(0, 0, 0);
@@ -117,13 +133,12 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   border-radius: var(--radius-md);
-  isolation: isolate; /* Performance boost */
+  isolation: isolate; 
   position: relative; overflow: hidden;
   transform-style: preserve-3d;
   will-change: transform;
 }
 
-/* Dynamic Hover Glare */
 .ultra-glass::after {
   content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
   background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.1), transparent 40%);
@@ -135,17 +150,26 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
    NAVIGATION (DYNAMIC FLOAT)
 ═══════════════════════════════════════════════ */
 .nav {
-  position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); z-index: 1000;
-  width: calc(100% - 4rem); max-width: 800px;
+  position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 1000;
+  width: calc(100% - 2rem); max-width: 800px;
   border-radius: var(--radius-pill); padding: 0.8rem 1.5rem;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   animation: slideDown 1.2s var(--ease-fluid) forwards;
+  
+  /* CRITICAL FIX: Overrides ultra-glass overflow:hidden so mobile menu can drop down */
+  overflow: visible !important; 
 }
+.nav::after {
+  /* Keeps the hover glare inside the pill shape despite overflow: visible */
+  border-radius: inherit; 
+}
+
 @keyframes slideDown { from { transform: translate(-50%, -120%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
-.nav-logo { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.2rem; letter-spacing: -0.03em; }
+.nav-logo { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.2rem; letter-spacing: -0.03em; position: relative; z-index: 1001; }
 .nav-logo span { color: var(--accent); }
-.nav-links { display: none; align-items: center; gap: 3rem; }
+
+.nav-links { display: flex; align-items: center; gap: 3rem; }
 .nav-link { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); transition: color 0.4s; position: relative; padding: 0.5rem 0; letter-spacing: 0.02em; }
 .nav-link:hover { color: var(--text-primary); }
 .nav-link::after {
@@ -154,23 +178,45 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
 }
 .nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
 
-.menu-btn { display: flex; flex-direction: column; gap: 6px; width: 32px; height: 32px; justify-content: center; align-items: flex-end; }
-.menu-btn span { display: block; height: 2px; background: var(--text-primary); transition: 0.4s var(--ease-fluid); border-radius: 2px; }
+.mobile-only { display: none; }
+
+.menu-btn { display: none; flex-direction: column; gap: 6px; width: 32px; height: 32px; justify-content: center; align-items: flex-end; position: relative; z-index: 1001; }
+.menu-btn span { display: block; height: 2px; background: var(--text-primary); transition: 0.4s var(--ease-fluid); border-radius: 2px; transform-origin: center; }
 .menu-btn span:nth-child(1) { width: 100%; }
 .menu-btn span:nth-child(2) { width: 60%; }
-.menu-btn:hover span { width: 100%; }
-@media (min-width: 768px) { .nav-links { display: flex; } .menu-btn { display: none; } }
+
+@media (max-width: 768px) {
+  .nav { padding: 1rem 1.5rem; }
+  .menu-btn { display: flex; }
+  .menu-btn.open span:nth-child(1) { transform: translateY(4px) rotate(45deg); width: 100%; }
+  .menu-btn.open span:nth-child(2) { transform: translateY(-4px) rotate(-45deg); width: 100%; }
+  
+  .nav-links {
+    flex-direction: column; position: absolute; top: calc(100% + 1rem); left: 0; right: 0;
+    background: rgba(5, 5, 10, 0.85); /* Deep black tint for mobile menu */
+    backdrop-filter: blur(32px) saturate(200%); -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); padding: 2rem; gap: 1.5rem;
+    opacity: 0; pointer-events: none; transform: translateY(-20px); transition: all 0.4s var(--ease-spring);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+  }
+  .nav-links.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .nav-links li { width: 100%; text-align: center; }
+  .nav-link { display: inline-block; font-size: 1.1rem; }
+  .mobile-only { display: block; margin-top: 1rem; }
+  #nav-cta { display: none !important; }
+}
 
 /* ═══════════════════════════════════════════════
    MATERIAL MAGNETIC BUTTONS
 ═══════════════════════════════════════════════ */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;
-  padding: 1.2rem 2.5rem; border-radius: var(--radius-pill); font-weight: 600; font-size: 0.95rem;
+  padding: 1rem 2.2rem; border-radius: var(--radius-pill); font-weight: 600; font-size: 0.95rem;
   transition: transform 0.3s var(--ease-material), box-shadow 0.3s var(--ease-material), background 0.3s;
-  position: relative; will-change: transform;
+  position: relative; will-change: transform; line-height: 1.2; text-decoration: none; white-space: nowrap; box-sizing: border-box;
 }
-.btn:active { transform: scale(0.96) !important; } /* Tactile Press */
+.btn svg { display: block; }
+.btn:active { transform: scale(0.96) !important; } 
 
 .btn-primary { 
   background: var(--accent); color: #fff; 
@@ -192,20 +238,22 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
 /* ═══════════════════════════════════════════════
    HERO SECTION
 ═══════════════════════════════════════════════ */
-.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding-top: 7rem; padding-bottom: 4rem; }
-.hero-content { max-width: 1200px; margin: 0 auto; margin-top: 2rem; display: grid; grid-template-columns: 1fr; gap: 4rem; align-items: center; position: relative; z-index: 2; text-align: center; }
-@media (min-width: 900px) {
-  .hero-content { grid-template-columns: 1.2fr 0.8fr; text-align: left; }
-}
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding-top: 8rem; padding-bottom: 3rem; }
+@media (min-width: 768px) { .hero { padding-top: 12rem; padding-bottom: 4rem; } }
+
+.hero-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 3rem; align-items: center; position: relative; z-index: 2; text-align: center; }
+/* Adjusted desktop grid columns to pull the image slightly more to the left */
+@media (min-width: 900px) { .hero-content { grid-template-columns: 1.15fr 0.85fr; text-align: left; gap: 3rem; } }
 
 .hero-text-area { display: flex; flex-direction: column; align-items: center; }
 @media (min-width: 900px) { .hero-text-area { align-items: flex-start; } }
 
 .hero-image-area { display: flex; justify-content: center; order: -1; }
-@media (min-width: 900px) { .hero-image-area { order: 0; } }
+/* Pull image to the left edge of its column with flex-start instead of center */
+@media (min-width: 900px) { .hero-image-area { order: 0; justify-content: flex-start; padding-left: 0rem; } }
 
 .hero-avatar {
-  width: clamp(220px, 30vw, 400px); height: clamp(220px, 30vw, 400px); border-radius: 50%;
+  width: clamp(180px, 45vw, 400px); height: clamp(180px, 45vw, 400px); border-radius: 50%;
   padding: 8px; position: relative; display: flex; align-items: center; justify-content: center;
 }
 .hero-avatar img { width: 100%; height: 100%; border-radius: 50%; z-index: 2; position: relative; }
@@ -215,117 +263,137 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
   animation: spin 8s linear infinite; z-index: 1; opacity: 0.6; filter: blur(15px);
 }
 
-.hero-title { font-size: clamp(3.5rem, 7vw, 6.5rem); margin-bottom: 1.5rem; line-height: 1.05; }
-.hero-subtitle { font-size: clamp(1.15rem, 2vw, 1.4rem); color: var(--text-secondary); max-width: 700px; margin-bottom: 3.5rem; font-weight: 300; line-height: 1.8; }
-.hero-actions { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
-@media (min-width: 900px) { .hero-actions { justify-content: flex-start; } }
+/* Reduced min font sizes to fit 320px screens perfectly */
+.hero-title { font-size: clamp(2.4rem, 10vw, 6.5rem); margin-bottom: 1.5rem; line-height: 1.05; }
+.hero-subtitle { font-size: clamp(1.05rem, 3.5vw, 1.4rem); color: var(--text-secondary); max-width: 700px; margin-bottom: 2.5rem; font-weight: 300; line-height: 1.8; }
+@media (min-width: 768px) { .hero-subtitle { margin-bottom: 3.5rem; } }
+
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+@media (min-width: 900px) { .hero-actions { justify-content: flex-start; gap: 1.5rem; } }
 
 /* ═══════════════════════════════════════════════
    BENTO PROFILE & SKILLS
 ═══════════════════════════════════════════════ */
 .bento-grid {
-  display: grid; grid-template-columns: 1fr; gap: 2rem;
+  display: grid; grid-template-columns: 1fr; gap: 1.5rem;
   grid-auto-rows: minmax(260px, auto);
 }
 @media (min-width: 800px) {
-  .bento-grid { grid-template-columns: repeat(3, 1fr); }
+  .bento-grid { grid-template-columns: repeat(3, 1fr); gap: 2rem; }
   .bento-wide { grid-column: span 2; }
   .bento-tall { grid-row: span 2; }
 }
 
-.bento-card { padding: 3.5rem; display: flex; flex-direction: column; justify-content: space-between; transform-origin: center center; }
+/* Reduced mobile padding */
+.bento-card { padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; transform-origin: center center; }
+@media (min-width: 768px) { .bento-card { padding: 3.5rem; } }
+
 .bento-icon {
   width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--glass-border);
-  display: grid; place-items: center; font-size: 2rem; margin-bottom: 3rem;
+  display: grid; place-items: center; font-size: 2rem; margin-bottom: 2rem;
   background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-  box-shadow: inset 0 2px 10px rgba(255,255,255,0.15);
-  transition: transform 0.5s var(--ease-spring);
+  box-shadow: inset 0 2px 10px rgba(255,255,255,0.15); transition: transform 0.5s var(--ease-spring);
 }
+@media (min-width: 768px) { .bento-icon { margin-bottom: 3rem; } }
 .bento-card:hover .bento-icon { transform: scale(1.15) rotate(5deg); background: var(--accent-alpha); border-color: rgba(224, 120, 40, 0.4); }
 
-.bento-card h3 { font-size: 2rem; margin-bottom: 1rem; }
+.bento-card h3 { font-size: clamp(1.6rem, 6vw, 2rem); margin-bottom: 1rem; }
 .bento-card p { color: var(--text-secondary); font-size: 1.1rem; line-height: 1.7; }
 
-.tech-list { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2.5rem; }
+.tech-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2rem; }
+@media (min-width: 768px) { .tech-list { gap: 0.75rem; margin-top: 2.5rem; } }
+
 .tech-item {
-  padding: 0.6rem 1.4rem; border-radius: var(--radius-pill); font-size: 0.9rem; font-weight: 600;
+  padding: 0.6rem 1.4rem; border-radius: var(--radius-pill); font-size: 0.85rem; font-weight: 600;
   border: 1px solid var(--glass-border); color: var(--text-secondary);
   background: rgba(255,255,255,0.03); transition: all 0.4s var(--ease-fluid);
 }
 .bento-card:hover .tech-item { border-color: rgba(224, 120, 40, 0.5); color: var(--text-primary); background: var(--accent-alpha); }
 
-.bento-decor { position: absolute; right: -5%; bottom: -15%; font-size: 22rem; opacity: 0.02; font-family: serif; transform: rotate(-10deg); pointer-events: none; user-select: none; }
+.bento-decor { position: absolute; right: -5%; bottom: -15%; font-size: 18rem; opacity: 0.02; font-family: serif; transform: rotate(-10deg); pointer-events: none; user-select: none; }
+@media (min-width: 768px) { .bento-decor { font-size: 22rem; } }
 
 /* ═══════════════════════════════════════════════
    PROJECTS SHOWCASE
 ═══════════════════════════════════════════════ */
-.projects-container { display: flex; flex-direction: column; gap: 4rem; }
-.project-card {
-  display: grid; grid-template-columns: 1fr; padding: 4rem; gap: 4rem;
-}
+.projects-container { display: flex; flex-direction: column; gap: 2.5rem; }
+@media (min-width: 768px) { .projects-container { gap: 4rem; } }
+
+.project-card { display: grid; grid-template-columns: 1fr; padding: 2rem; gap: 2rem; }
 @media (min-width: 1000px) {
-  .project-card { grid-template-columns: 1.2fr 0.8fr; align-items: center; }
+  .project-card { grid-template-columns: 1.2fr 0.8fr; align-items: center; padding: 4rem; gap: 4rem; }
   .project-card.reverse { grid-template-columns: 0.8fr 1.2fr; }
 }
 
-.project-number { font-family: 'Playfair Display', serif; font-size: 6rem; color: var(--text-primary); opacity: 0.08; line-height: 0.8; margin-bottom: 1.5rem; display: block; }
-.project-card h3 { font-size: 3rem; margin-bottom: 1.5rem; }
-.project-card p { color: var(--text-secondary); margin-bottom: 3rem; font-size: 1.15rem; line-height: 1.8; }
-.project-meta { border-top: 1px solid var(--glass-border); padding-top: 2.5rem; display: flex; justify-content: space-between; align-items: center; }
+.project-number { font-family: 'Playfair Display', serif; font-size: clamp(3.5rem, 12vw, 6rem); color: var(--text-primary); opacity: 0.08; line-height: 0.8; margin-bottom: 1.5rem; display: block; }
+.project-card h3 { font-size: clamp(1.8rem, 8vw, 3rem); margin-bottom: 1.5rem; }
+.project-card p { color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.8; }
+@media (min-width: 768px) { .project-card p { margin-bottom: 3rem; font-size: 1.15rem; } }
+.project-meta { border-top: 1px solid var(--glass-border); padding-top: 2rem; display: flex; justify-content: flex-start; align-items: center; }
 
 .project-visual {
-  height: 100%; min-height: 350px; border-radius: var(--radius-md); border: 1px solid var(--glass-border);
+  height: 100%; min-height: 250px; border-radius: var(--radius-md); border: 1px solid var(--glass-border);
   background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05));
   display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
   box-shadow: inset 0 0 40px rgba(0,0,0,0.1);
 }
+@media (min-width: 768px) { .project-visual { min-height: 350px; } }
 .project-visual::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.3)); pointer-events: none; }
-.project-icon { font-size: 6rem; opacity: 0.9; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); transition: transform 0.8s var(--ease-spring); }
+.project-icon { font-size: 5rem; opacity: 0.9; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); transition: transform 0.8s var(--ease-spring); }
+@media (min-width: 768px) { .project-icon { font-size: 6rem; } }
 .project-card:hover .project-icon { transform: scale(1.2) translateY(-20px); }
 
 /* ═══════════════════════════════════════════════
    RESEARCH PUBLICATION
 ═══════════════════════════════════════════════ */
-.research-panel { padding: 8rem 4rem; text-align: center; position: relative; overflow: hidden; }
+.research-panel { padding: 3rem 1.5rem; text-align: center; position: relative; overflow: hidden; }
+@media (min-width: 768px) { .research-panel { padding: 8rem 4rem; } }
 .research-panel::before {
   content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
   width: 70%; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent);
 }
-.research-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent); margin-bottom: 2.5rem; display: block; letter-spacing: 0.2em; }
-.research-panel h3 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3.5rem); max-width: 1100px; margin: 0 auto 2.5rem; line-height: 1.2; }
-.research-authors { font-style: italic; color: var(--text-muted); margin-bottom: 3.5rem; font-size: 1.2rem; }
-.research-abstract { max-width: 900px; margin: 0 auto 5rem; color: var(--text-secondary); font-size: 1.2rem; line-height: 1.9; }
+.research-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent); margin-bottom: 2rem; display: block; letter-spacing: 0.15em; }
+.research-panel h3 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 6vw, 3.5rem); max-width: 1100px; margin: 0 auto 2rem; line-height: 1.25; }
+.research-authors { font-style: italic; color: var(--text-muted); margin-bottom: 2rem; font-size: 1.1rem; }
+.research-abstract { max-width: 900px; margin: 0 auto 3rem; color: var(--text-secondary); font-size: 1.1rem; line-height: 1.8; }
+@media (min-width: 768px) { .research-abstract { margin-bottom: 5rem; font-size: 1.2rem; } }
 
 /* ═══════════════════════════════════════════════
    POETRY (MARQUEE)
 ═══════════════════════════════════════════════ */
-.poetry-section { padding: 10rem 0; overflow: hidden; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.015); }
+.poetry-section { padding: 6rem 0; overflow: hidden; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.015); }
+@media (min-width: 768px) { .poetry-section { padding: 10rem 0; } }
 .marquee-container { display: flex; width: max-content; animation: marquee 60s linear infinite; }
 .marquee-container:hover { animation-play-state: paused; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
-.verse-item {
-  padding: 0 6rem; display: flex; flex-direction: column; align-items: center; text-align: center; border-right: 1px solid var(--glass-border);
-}
-.verse-text { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--text-primary); margin-bottom: 1.5rem; white-space: pre-line; line-height: 1.5; }
-.verse-trans { font-family: 'Outfit', sans-serif; font-size: 1.1rem; color: var(--text-muted); font-style: italic; }
+.verse-item { padding: 0 3rem; display: flex; flex-direction: column; align-items: center; text-align: center; border-right: 1px solid var(--glass-border); }
+@media (min-width: 768px) { .verse-item { padding: 0 6rem; } }
+.verse-text { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 5vw, 2.2rem); color: var(--text-primary); margin-bottom: 1rem; white-space: pre-line; line-height: 1.5; }
+.verse-trans { font-family: 'Outfit', sans-serif; font-size: 1rem; color: var(--text-muted); font-style: italic; }
 
 /* ═══════════════════════════════════════════════
    CONTACT & FOOTER
 ═══════════════════════════════════════════════ */
-.contact-section { text-align: center; padding: 14rem 0 8rem; }
-.contact-title { font-size: clamp(4.5rem, 8vw, 7.5rem); margin-bottom: 1.5rem; line-height: 1; }
-.contact-subtitle { color: var(--text-secondary); max-width: 600px; margin: 0 auto 5rem; font-size: 1.3rem; line-height: 1.8; }
+.contact-section { text-align: center; padding: 8rem 0 6rem; }
+@media (min-width: 768px) { .contact-section { padding: 14rem 0 8rem; } }
+.contact-title { font-size: clamp(2.6rem, 10vw, 7.5rem); margin-bottom: 1.5rem; line-height: 1.05; }
+.contact-subtitle { color: var(--text-secondary); max-width: 600px; margin: 0 auto 3rem; font-size: 1.15rem; line-height: 1.8; }
+@media (min-width: 768px) { .contact-subtitle { margin-bottom: 5rem; font-size: 1.3rem; } }
 
-.social-grid { display: flex; justify-content: center; gap: 2.5rem; margin-top: 6rem; flex-wrap: wrap; }
+.social-grid { display: flex; justify-content: center; gap: 1.5rem; margin-top: 4rem; flex-wrap: wrap; }
+@media (min-width: 768px) { .social-grid { gap: 2.5rem; margin-top: 6rem; } }
+
 .social-link {
-  width: 80px; height: 80px; border-radius: 50%; display: grid; place-items: center;
-  font-size: 2rem; color: var(--text-primary); transition: all 0.5s var(--ease-spring);
+  width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.7rem; color: var(--text-primary); transition: all 0.5s var(--ease-spring);
 }
+@media (min-width: 768px) { .social-link { width: 80px; height: 80px; font-size: 2rem; } }
 .social-link:active { transform: scale(0.9); }
 .social-link:hover { background: var(--accent); color: white; border-color: var(--accent); transform: translateY(-12px) scale(1.1); box-shadow: 0 20px 40px rgba(224, 120, 40, 0.4); }
 
-.footer { text-align: center; padding: 4rem 2rem; border-top: 1px solid var(--glass-border); font-size: 0.95rem; color: var(--text-muted); margin-top: 6rem; letter-spacing: 0.05em; }
+.footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--glass-border); font-size: 0.9rem; color: var(--text-muted); margin-top: 4rem; letter-spacing: 0.05em; }
+@media (min-width: 768px) { .footer { padding: 4rem 2rem; margin-top: 6rem; } }
 
 /* ═══════════════════════════════════════════════
    CINEMATIC SCROLL REVEAL ANIMATIONS
@@ -352,16 +420,24 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
 <!-- Navigation -->
 <nav class="nav ultra-glass">
   <a href="#" class="nav-logo serif">Sundaresan<span>.</span></a>
+  
   <ul class="nav-links">
     <li><a href="#about" class="nav-link">Profile</a></li>
     <li><a href="#projects" class="nav-link">Projects</a></li>
     <li><a href="#research" class="nav-link">Research</a></li>
     <li><a href="#poetry" class="nav-link serif" style="font-style:italic">Verses</a></li>
+    
+    <!-- Mobile specific CTA link inside dropdown -->
+    <li class="mobile-only">
+      <a href="#contact" class="btn btn-primary" style="width: 100%;">Let's Talk</a>
+    </li>
   </ul>
+  
   <div style="display: flex; align-items: center;" id="nav-cta">
     <a href="#contact" class="btn btn-primary magnetic" data-strength="20" style="padding: 0.8rem 1.8rem; font-size: 0.9rem;">Let's Talk</a>
   </div>
-  <button class="menu-btn">
+  
+  <button class="menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
     <span></span><span></span>
   </button>
 </nav>
@@ -392,7 +468,7 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
 <section id="about" class="section">
   <div class="container">
     <span class="eyebrow reveal">Professional Architecture</span>
-    <h2 style="font-size: 3.5rem; margin-bottom: 5rem;" class="reveal">A dual-disciplined <span class="serif grad-text">approach.</span></h2>
+    <h2 class="section-title serif grad-text reveal" style="margin-bottom: 3rem;">A dual-disciplined approach.</h2>
     
     <div class="bento-grid">
       
@@ -454,7 +530,7 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
 <section id="projects" class="section">
   <div class="container">
     <span class="eyebrow reveal">System Engineering</span>
-    <h2 style="font-size: 3.5rem; margin-bottom: 5rem;" class="reveal">Featured <span class="serif grad-text">Tools.</span></h2>
+    <h2 class="section-title serif grad-text reveal" style="margin-bottom: 3rem;">Featured Tools.</h2>
 
     <div class="projects-container">
       
@@ -505,7 +581,7 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
           <div class="project-icon">🤖</div>
         </div>
       </div>
-
+      
       <!-- Project 4 -->
       <div class="ultra-glass project-card reverse reveal delay-1 card-3d">
         <div class="project-visual" style="order: -1;">
@@ -535,7 +611,7 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
       <p class="research-authors">N.K. Fuloria, L. Thangavelu, <strong style="color:var(--text-primary)">N. Sundaresan</strong>, et al.</p>
       <p class="research-abstract">Designed and synthesized novel cresol derivatives targeting Monilial vulvovaginitis pathogens. Demonstrated high docking scores against C. albicans CYP51 and S. aureus DNA Gyrase B, with significantly potent antimicrobial activity and negligible cytotoxicity in HEK-293 cells.</p>
       
-      <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+      <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
         <a href="https://doi.org/10.14233/ajchem.2025.34713" target="_blank" class="btn btn-primary magnetic" data-strength="35">Read Paper</a>
         <a href="https://orcid.org/0009-0001-1347-944X" target="_blank" class="btn btn-glass magnetic" data-strength="30">ORCID Profile</a>
       </div>
@@ -545,10 +621,10 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
 
 <!-- Poetry (Marquee) -->
 <section id="poetry" class="poetry-section">
-  <div class="container" style="text-align: center; margin-bottom: 5rem;">
-    <span class="eyebrow reveal">Kavidhai</span>
-    <h2 class="serif reveal" style="font-size: 3.5rem; font-style: italic;">Tamil Verses</h2>
-    <p class="reveal" style="color: var(--text-secondary); margin-top: 1.5rem; font-size: 1.2rem;">The creative voice alongside the scientific. <a href="https://www.instagram.com/mr.kavinjan/" target="_blank" style="color: var(--accent); text-decoration: underline;">@mr.kavinjan</a></p>
+  <div class="container" style="text-align: center; margin-bottom: 3rem;">
+    <span class="eyebrow reveal" style="justify-content: center;">Kavidhai</span>
+    <h2 class="serif reveal" style="font-size: clamp(2.5rem, 8vw, 4rem); font-style: italic;">Tamil Verses</h2>
+    <p class="reveal" style="color: var(--text-secondary); margin-top: 1rem; font-size: 1.1rem;">The creative voice alongside the scientific. <a href="https://www.instagram.com/mr.kavinjan/" target="_blank" style="color: var(--accent); text-decoration: underline;">@mr.kavinjan</a></p>
   </div>
   
   <div class="marquee-container" id="marquee">
@@ -562,7 +638,7 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
     <h2 class="contact-title serif">Let's build something <span class="grad-text">extraordinary.</span></h2>
     <p class="contact-subtitle">Open to collaborations in clinical diagnostics, research automation, and sophisticated lab software architecture.</p>
     
-    <a href="mailto:akshayamaranclux@gmail.com" class="btn btn-primary magnetic" data-strength="60" style="padding: 1.8rem 5rem; font-size: 1.3rem;">
+    <a href="mailto:akshayamaranclux@gmail.com" class="btn btn-primary magnetic" data-strength="60" style="padding: 1.5rem 3rem; font-size: 1.1rem;">
       Initiate Communication
     </a>
 
@@ -581,6 +657,35 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
 <script>
   // 1. Current Year Setup
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // 2. Responsive Navigation & Mobile Menu Logic
+  const navCta = document.getElementById('nav-cta');
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const navLinks = document.querySelector('.nav-links');
+
+  window.addEventListener('resize', () => {
+    if(window.innerWidth > 768) {
+      navCta.style.display = 'flex';
+      navLinks.classList.remove('open');
+      menuBtn.classList.remove('open');
+    } else {
+      navCta.style.display = 'none';
+    }
+  });
+  if(window.innerWidth > 768) navCta.style.display = 'flex';
+
+  menuBtn.addEventListener('click', () => {
+    menuBtn.classList.toggle('open');
+    navLinks.classList.toggle('open');
+  });
+
+  // Close menu when a link is clicked
+  document.querySelectorAll('.nav-link, .mobile-only a').forEach(link => {
+    link.addEventListener('click', () => {
+      menuBtn.classList.remove('open');
+      navLinks.classList.remove('open');
+    });
+  });
 
   // 3. Ultra-Smooth Cinematic Reveal (Intersection Observer)
   const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
@@ -613,61 +718,66 @@ h1, h2, h3, h4 { line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
   });
 
   // 5. Material 3D Tilt & Glare Engine
-  document.querySelectorAll('.card-3d').forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      // Update dynamic glare position
-      card.style.setProperty('--mx', `${x}px`);
-      card.style.setProperty('--my', `${y}px`);
-      
-      // Calculate 3D rotation (Material perspective)
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -4; // Max 4 deg tilt
-      const rotateY = ((x - centerX) / centerX) * 4;
-      
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-    });
+  // Disabled on mobile for better performance/usability
+  if (window.innerWidth > 768) {
+    document.querySelectorAll('.card-3d').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Update dynamic glare position
+        card.style.setProperty('--mx', `${x}px`);
+        card.style.setProperty('--my', `${y}px`);
+        
+        // Calculate 3D rotation (Material perspective)
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -4; 
+        const rotateY = ((x - centerX) / centerX) * 4;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+      });
 
-    card.addEventListener('mouseleave', () => {
-      card.style.transition = 'transform 0.6s cubic-bezier(0.2, 0, 0, 1)';
-      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-      setTimeout(() => { card.style.transition = ''; }, 600);
-    });
-    
-    card.addEventListener('mouseenter', () => {
-      card.style.transition = 'none'; // Snap instantly to mouse on enter
-    });
-  });
-
-  // 7. Refined Magnetic Physics for Buttons
-  const magneticEls = document.querySelectorAll('.magnetic');
-  magneticEls.forEach(el => {
-    el.addEventListener('mousemove', (e) => {
-      const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      const strength = el.getAttribute('data-strength') || 20;
+      card.addEventListener('mouseleave', () => {
+        card.style.transition = 'transform 0.6s cubic-bezier(0.2, 0, 0, 1)';
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        setTimeout(() => { card.style.transition = ''; }, 600);
+      });
       
-      const boundX = x / strength * 1.5;
-      const boundY = y / strength * 1.5;
-      
-      el.style.transform = `translate3d(${boundX}px, ${boundY}px, 0)`;
+      card.addEventListener('mouseenter', () => {
+        card.style.transition = 'none';
+      });
     });
+  }
 
-    el.addEventListener('mouseleave', () => {
-      el.style.transition = 'transform 0.5s cubic-bezier(0.25, 1.2, 0.3, 1)';
-      el.style.transform = 'translate3d(0px, 0px, 0)';
-      setTimeout(() => { el.style.transition = ''; }, 500);
+  // 7. Refined Magnetic Physics for Buttons (Desktop only)
+  if (window.innerWidth > 768) {
+    const magneticEls = document.querySelectorAll('.magnetic');
+    magneticEls.forEach(el => {
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        const strength = el.getAttribute('data-strength') || 20;
+        
+        const boundX = x / strength * 1.5;
+        const boundY = y / strength * 1.5;
+        
+        el.style.transform = `translate3d(${boundX}px, ${boundY}px, 0)`;
+      });
+
+      el.addEventListener('mouseleave', () => {
+        el.style.transition = 'transform 0.5s cubic-bezier(0.25, 1.2, 0.3, 1)';
+        el.style.transform = 'translate3d(0px, 0px, 0)';
+        setTimeout(() => { el.style.transition = ''; }, 500);
+      });
+      
+      el.addEventListener('mouseenter', () => {
+        el.style.transition = 'none';
+      });
     });
-    
-    el.addEventListener('mouseenter', () => {
-      el.style.transition = 'none';
-    });
-  });
+  }
 
   // 8. JS Smooth Native Anchors
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
